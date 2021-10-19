@@ -14,13 +14,22 @@
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    <strong class="capitalize">{{ folder }}</strong>
-    <img [src]="image"
-         *ngFor="let image of imgSrc"
-    style="width: 50%">
-    <p>Explore <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <div>
+    <ion-card *ngFor="let user of users">
+      <ion-card-header>
+        <ion-card-title>{{user.name}}</ion-card-title>
+        <ion-card-subtitle *ngIf="user.todos">{{user.todos.length}} tâche{{user.todos.length > 1 ? 's' : ''}} - {{statusTodoCheck(user.todos).unChecked}} à faire</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+
+        <ion-list *ngIf="user.todos">
+          <ion-item *ngFor="let todo of user.todos">
+            <ion-checkbox slot="start" [checked]="todo.completed"></ion-checkbox>
+            <ion-label>{{todo.title}}</ion-label>
+          </ion-item>
+        </ion-list>
+
+      </ion-card-content>
+    </ion-card>
   </div>
-  <ion-button
-    (click)="openCamera()">Ouvrir Caméra</ion-button>
 </ion-content>
