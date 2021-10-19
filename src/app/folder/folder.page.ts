@@ -4,6 +4,9 @@ import {ActivatedRoute} from '@angular/router';
 import {Camera, CameraResultType} from '@capacitor/camera';
 import {LoadingController} from '@ionic/angular';
 import {map} from 'rxjs/operators';
+import {Todo, User} from '../models';
+import {TodosService} from '../services/todos.service';
+import {UsersService} from '../services/users.service';
 
 @Component({
   selector: 'app-folder',
@@ -17,8 +20,9 @@ export class FolderPage implements OnInit {
   users: User[];
 
   constructor(private activatedRoute: ActivatedRoute,
-              private http: HttpClient,
-              private loadingController: LoadingController) {
+              private loadingController: LoadingController,
+              private usersSerice: UsersService,
+              private todosService: TodosService) {
   }
 
   async ngOnInit() {
@@ -30,14 +34,13 @@ export class FolderPage implements OnInit {
     });
     await loading.present();
 
-    this.http.get<User[]>('https://jsonplaceholder.typicode.com/users')
+    this.usersSerice.get()
       .subscribe((users) => {
         this.users = users;
         const promTodos = [];
 
         this.users.forEach(user => {
-          promTodos.push(this.http
-            .get<Todo[]>(`https://jsonplaceholder.typicode.com/todos?userId=${user.id}`).toPromise());
+          promTodos.push(this.todosService.getByUserId(user.id).toPromise());
         });
 
         Promise.all(promTodos)
@@ -72,43 +75,4 @@ export class FolderPage implements OnInit {
       unChecked: todos.filter(todo => !todo.completed).length
     };
   }
-}
-
-interface Todo {
-  userId: number;
-  id: number;
-  title: string;
-  completed: boolean;
-}
-
-interface User {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  address: Address;
-  phone: string;
-  website: string;
-  company: Company;
-
-  todos: Todo[];
-}
-
-interface Company {
-  name: string;
-  catchPhrase: string;
-  bs: string;
-}
-
-interface Geo {
-  lat: string;
-  lng: string;
-}
-
-interface Address {
-  street: string;
-  suite: string;
-  city: string;
-  zipcode: string;
-  geo: Geo;
 }
